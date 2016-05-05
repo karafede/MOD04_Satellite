@@ -2,8 +2,8 @@
 #### Read MODIS data for Aerosol Optical Depth ##############
 #### MODIS Collection 6 (3Km resolution AOD) ################
 
-setwd("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
-# setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
+# setwd("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
+setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
 
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("rhdf5")
@@ -27,8 +27,8 @@ library(htmlwidgets)
 
 
 filenames <- list.files(pattern = "\\.hdf$")
-dir_WW <- "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/Admin_shp"
-# dir_WW <- "C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/Admin_shp"
+# dir_WW <- "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/Admin_shp"
+dir_WW <- "C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/Admin_shp"
 shp <- readOGR(dsn = dir_WW, layer = "admin01")
 
 # ----- Transform to EPSG 4326 - WGS84 (required)
@@ -275,7 +275,8 @@ write.csv(idw.output, file = "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD
 ############################################################################################
 ############################################################################################
 
-DATA_EMIRATES_interp <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
+# DATA_EMIRATES_interp <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
+DATA_EMIRATES_interp <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
 
 # use GISSR package from Stuart
 # DATA_EMIRATES <- data_frame_to_points(DATA_EMIRATES, "lat", "lon")

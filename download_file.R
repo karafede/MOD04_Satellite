@@ -20,7 +20,9 @@ setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K")
 # url = "ftp://ladsftp.nascom.nasa.gov/allData/6/MOD04_L2/2016/090/"  # this works
 url = 'ftp://nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/105/' # 3km resolution
 # download data for April 12 2016
-url = 'ftp://karafede:Password07@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_L2/2016/103/' #1km resolution
+url = 'ftp://karafede:Password07@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_L2/2016/103/' #10km resolution, 103 rd day of the year
+url = 'ftp://karafede:Password07@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/125/' #3km resolution, 123 rd day of the year
+
 filenames = getURL(url, ftp.use.epsv = FALSE, ftplistonly = TRUE, crlf = TRUE) 
 filenames = paste(url, strsplit(filenames, "\r*\n")[[1]], sep = "") 
 filenames_hdf <- unlist(str_extract_all(filenames, ".+(.hdf$)"))
