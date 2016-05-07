@@ -3,7 +3,8 @@
 #### MODIS Collection 6 (3Km resolution AOD) ################
 
 # setwd("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
-setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
+# setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
+setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/")
 
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("rhdf5")
@@ -38,72 +39,75 @@ crs <- projection(shp) ### get projections from shp file
 
 
 #######################################################################
-
-# Get a list of sds names
-sds <- get_subdatasets("MODIS_prova.hdf") 
+# to CHECK!!!!!
+ # Get a list of sds names
+ sds <- get_subdatasets("MOD04_3K_prova.hdf") # chose a trial file to see the names
 
 # Isolate the name of the first sds
-name <- sds[64]  # AOD_550_Dark_Target_Deep_Blue_Combined
+# name <- sds[64]  # AOD_550_Dark_Target_Deep_Blue_Combined
+name <- sds[12]  # AOT Image_Optical_Depth_Land_And_Ocean
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[64], dst_dataset = filename)
+gdal_translate(sds[12], dst_dataset = filename)
 # Load the Geotiff created into R
 r <- raster(filename)
 plot(r)
 
-lon <- sds[71]  #longitude
+# lon <- sds[71]  #longitude
+lon <- sds[51]  #longitude
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[71], dst_dataset = filename)
+gdal_translate(sds[51], dst_dataset = filename)
 # Load the Geotiff created into R
 lon <- raster(filename)
 plot(lon)
 
 
-lat <- sds[72] # latitude
+# lon <- sds[72]  #longitude
+lat <- sds[52] # latitude
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[72], dst_dataset = filename)
+gdal_translate(sds[52], dst_dataset = filename)
 # Load the Geotiff created into R
 lat <- raster(filename)
 plot(lat)
 
 
-### Exctract poitns from raster ######################################
-
-# data values for AOD_550_Dark_Target_Deep_Blue_Combined
-values <- rasterToPoints(r)  # NA values are not converted
-head(values)
-colnames(values) <- c("x", "y", "values")
-values <- as.data.frame (values)
-# r <- subset(r, !is.na(values) & values>0)
-
-# data values for longitude
-longitude <- rasterToPoints(lon)  
-head(longitude)
-colnames(longitude) <- c("x", "y", "lon")
-longitude <- as.data.frame (longitude)
-
-# data values for longitude
-latitude <- rasterToPoints(lat)  
-head(latitude)
-colnames(latitude) <- c("x", "y", "lat")
-latitude <- as.data.frame (latitude)
-
-
-# Join  lat, lon 
-Lat_Lon <- latitude %>% 
-  inner_join(longitude, c("x", "y")) 
-
-Lat_Lon_Values <- Lat_Lon %>% 
-  inner_join(values, c("x", "y")) 
-
-Lat_Lon_Values <- merge(Lat_Lon, values, all=TRUE)
-
-Tile <- Lat_Lon_Values %>%
-  select(lon, lat, values)
-# Tile[is.na(Tile)] <- 0
-Tile <- na.omit(Tile)
+# ### Exctract poitns from raster ######################################
+# 
+# # data values for AOD_550_Dark_Target_Deep_Blue_Combined
+# values <- rasterToPoints(r)  # NA values are not converted
+# head(values)
+# colnames(values) <- c("x", "y", "values")
+# values <- as.data.frame (values)
+# # r <- subset(r, !is.na(values) & values>0)
+# 
+# # data values for longitude
+# longitude <- rasterToPoints(lon)  
+# head(longitude)
+# colnames(longitude) <- c("x", "y", "lon")
+# longitude <- as.data.frame (longitude)
+# 
+# # data values for longitude
+# latitude <- rasterToPoints(lat)  
+# head(latitude)
+# colnames(latitude) <- c("x", "y", "lat")
+# latitude <- as.data.frame (latitude)
+# 
+# 
+# # Join  lat, lon 
+# Lat_Lon <- latitude %>% 
+#   inner_join(longitude, c("x", "y")) 
+# 
+# Lat_Lon_Values <- Lat_Lon %>% 
+#   inner_join(values, c("x", "y")) 
+# 
+# Lat_Lon_Values <- merge(Lat_Lon, values, all=TRUE)
+# 
+# Tile <- Lat_Lon_Values %>%
+#   select(lon, lat, values)
+# # Tile[is.na(Tile)] <- 0
+# Tile <- na.omit(Tile)
 
 
 
@@ -118,20 +122,22 @@ extract_HDF <- function (file) {      ## this is the filenames
   nome <- str_sub(file, start = 1, end = -9)
   sds <- get_subdatasets(file)
   
-  AOD <- sds[64]  ## field value AOD
+  # AOD <- sds[64]  ## field value AOD
+  AOD <- sds[12]  ## # AOT Image_Optical_Depth_Land_And_Ocean
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
   # get raster data
-  gdal_translate(sds[64], dst_dataset = filename)
+  gdal_translate(sds[12], dst_dataset = filename)
   r <- raster(filename)
   values <- rasterToPoints(r)  
   colnames(values) <- c("x", "y", "values")
   values <- as.data.frame (values)
   
-  lon <- sds[71]  #longitude
+  # lon <- sds[71]  #longitude
+  lon <- sds[51]  #longitude
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
-  gdal_translate(sds[71], dst_dataset = filename)
+  gdal_translate(sds[51], dst_dataset = filename)
   lon <- raster(filename)
   # data values for longitude
   longitude <- rasterToPoints(lon)  
@@ -139,10 +145,11 @@ extract_HDF <- function (file) {      ## this is the filenames
   longitude <- as.data.frame (longitude)
   
   
-  lat <- sds[72] # latitude
+  # lat <- sds[72] # latitude
+  lat <- sds[52] # latitude
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
-  gdal_translate(sds[72], dst_dataset = filename)
+  gdal_translate(sds[52], dst_dataset = filename)
   # Load the Geotiff created into R
   lat <- raster(filename)
   # data values for longitude
@@ -195,7 +202,8 @@ for (i in 1:length(filenames_tiles)) {
 MODIS04_data <- cbind(LON, LAT, aod)
 MODIS04_data <- subset(MODIS04_data, !is.na(values) & !lat == -999 & !lon == -999)
 
-write.csv(MODIS04_data, "AOD_MOD04_10km_WW.csv")
+# write.csv(MODIS04_data, "AOD_MOD04_10km_WW.csv")
+write.csv(MODIS04_data, "AOD_MOD04_3K_3km_WW.csv")
 
 head(MODIS04_data)
 
@@ -204,8 +212,15 @@ head(MODIS04_data)
 # subset data fro a selected region
 # Saudi Arabia
 
-MODIS04_data <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/AOD_MOD04_10km_WW.csv")
+# MODIS04_data <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/AOD_MOD04_10km_WW.csv")
+# MODIS04_data <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/AOD_MOD04_10km_WW.csv")
+
+MODIS04_data <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_WW.csv")[2:4]
 DATA_EMIRATES <- subset(MODIS04_data, lon <= 80 & lon >= 10 & lat >= 10 & lat <= 55)
+
+# write.csv(DATA_EMIRATES, "AOD_MOD04_10km_EMIRATES.csv")
+write.csv(DATA_EMIRATES, "AOD_MOD04_3K_3km_EMIRATES.csv")
+DATA_EMIRATES <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_EMIRATES.csv")
 head(DATA_EMIRATES)
 
 
@@ -239,7 +254,8 @@ data_frame_to_points <- function (df, latitude = "lat",
 
 ##################################################################################
 ##################################################################################
-
+# use GISSR package from Stuart
+# DATA_EMIRATES <- data_frame_to_points(DATA_EMIRATES, "lat", "lon")
 
 ############  Make a data interpolation on a regular grid ########################
 
@@ -275,11 +291,13 @@ write.csv(idw.output, file = "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD
 ############################################################################################
 ############################################################################################
 
-# DATA_EMIRATES_interp <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
-DATA_EMIRATES_interp <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
+# Load interpolated data at resolution of 10km
 
-# use GISSR package from Stuart
-# DATA_EMIRATES <- data_frame_to_points(DATA_EMIRATES, "lat", "lon")
+# DATA_EMIRATES_interp <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
+# DATA_EMIRATES_interp <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
+
+# Load interpolated data at resolution of 3km 
+DATA_EMIRATES_interp <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/DATA_EMIRATES_Interp_3K.csv")
 
 
 # make raster with interpolated data
@@ -320,7 +338,8 @@ rast_pal_EMIRATES <- colorNumeric(c("#ffffff", "#b7b700", "#e50000"),
                    opacity = 0.6,
                    group = "AOD_EMIRATES") %>%
   addLegend("bottomright", pal = rast_pal_EMIRATES, values = c(MIN_data, MAX_data),
-            title = "<br><strong>AOD from MODIS (10km) 12 April 2016 </strong>",
+        #    title = "<br><strong>AOD from MODIS (10km) 12 April 2016 </strong>",
+            title = "<br><strong>AOD from MODIS (3km) 03 may 2016 </strong>",
             labFormat = labelFormat(prefix = ""),
             opacity = 0.6) %>%
     addLayersControl(
@@ -331,7 +350,15 @@ rast_pal_EMIRATES <- colorNumeric(c("#ffffff", "#b7b700", "#e50000"),
   
   
 # save map in html format
-  saveWidget(map,
-             file="AOD_EMIRATES_2016_04_12.html",
-             selfcontained = FALSE)
+#   saveWidget(map,
+#              file="AOD_EMIRATES_2016_04_12_3km.html",
+#              selfcontained = FALSE)
 
+
+  # save map in html format
+  saveWidget(map,
+             file="AOD_EMIRATES_2016_05_03_3km.html",
+             selfcontained = FALSE)
+  
+  
+  
