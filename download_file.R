@@ -14,29 +14,47 @@ library(curl)
 # options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))   
 
 # setwd("C:/RICARDO-AEA/AOD_MOD04_L2_3K")
-setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K")
-setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K")
+# setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K")
+# setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K")
+# setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_277_3Oct2016")
+setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_10K_2016_277_3Oct2016")
 
 # url = "ftp://disc2.nascom.nasa.gov/data/TRMM/Gridded/Derived_Products/3B42_V6/Daily/2009/" # this works
 # url = "ftp://ladsftp.nascom.nasa.gov/allData/6/MOD04_L2/2016/090/"  # this works
 url = 'ftp://nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/105/' # 3km resolution
+url = "ftp://nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/270/" # 3km resolution' # 3km resolution
 # download data for April 12 2016
 url = 'ftp://karafede:Password07@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_L2/2016/103/' #10km resolution, 103 rd day of the year
 url = 'ftp://karafede:Password07@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/124/' #3km resolution, 124 th day of the year
 
-filenames = getURL(url, ftp.use.epsv = FALSE, ftplistonly = TRUE, crlf = TRUE) 
+
+# new url at 3 October 2016
+url = "ftp://karafede:Password08@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_3K/2016/277/" #3km resolution,
+url = 'ftp://karafede:Password08@nrt3.modaps.eosdis.nasa.gov/allData/6/MOD04_L2/2016/277/' #10km resolution
+
+# filenames = getURL(url,dirlistonly=TRUE) 
+filenames = getURL(url, ftp.use.epsv = FALSE, ftplistonly = TRUE, crlf = TRUE, ssl.verifypeer = FALSE) 
+# filenames = getURL(url, ftp.use.epsv = FALSE, ftplistonly = TRUE, crlf = TRUE) 
 filenames = paste(url, strsplit(filenames, "\r*\n")[[1]], sep = "") 
 filenames_hdf <- unlist(str_extract_all(filenames, ".+(.hdf$)"))
-# mapply(download.file, filenames, , method="curl") 
+
+
 # start downloading data in the main directory
 mapply(download.file, filenames_hdf,basename(filenames_hdf), method = 'curl') 
+# mapply(download.file, filenames_hdf,basename(filenames_hdf)) 
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+
 
 # move file into the directory "MOD04_AOD_2016_103"
-origindir <- c("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K")
+# origindir <- c("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K")
 targetdir <- c("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103")
 
-origindir <- c("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K")
-targetdir <- c("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124")
+# origindir <- c("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K")
+# targetdir <- c("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124")
 
 
 filenames = getURL(url, ftp.use.epsv = FALSE, ftplistonly = TRUE, crlf = TRUE) 
@@ -48,6 +66,12 @@ file.copy(from = filestocopy, to = targetdir,
           overwrite = TRUE, recursive = FALSE, 
           copy.mode = TRUE)
 file.remove(filestocopy)
+
+
+
+
+
+
 
 ######################################################################################
 ######################################################################################

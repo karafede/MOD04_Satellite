@@ -5,6 +5,9 @@
 # setwd("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
 # setwd("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/")
 setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/")
+# new data from v£ october 2016
+# setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_277_3Oct2016")
+setwd("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_10K_2016_277_3Oct2016")
 
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("rhdf5")
@@ -39,35 +42,41 @@ crs <- projection(shp) ### get projections from shp file
 
 
 #######################################################################
-# to CHECK!!!!!
+# to CHECK!!!!! jusr run once to check!
  # Get a list of sds names
- sds <- get_subdatasets("MOD04_3K_prova.hdf") # chose a trial file to see the names
 
+sds <- get_subdatasets("MOD04_3K_prova.hdf") # chose a trial file to see the names
+sds <- get_subdatasets("MODIS_prova.hdf") # chose a trial file to see the names
+  
 # Isolate the name of the first sds
-# name <- sds[64]  # AOD_550_Dark_Target_Deep_Blue_Combined
-name <- sds[12]  # AOT Image_Optical_Depth_Land_And_Ocean
+# name <- sds[64]  # AOD_550_Dark_Target_Deep_Blue_Combined 10km
+name <- sds[12]  # AOT Image_Optical_Depth_Land_And_Ocean 3km
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[12], dst_dataset = filename)
+# gdal_translate(sds[12], dst_dataset = filename)
+gdal_translate(sds[64], dst_dataset = filename)
 # Load the Geotiff created into R
 r <- raster(filename)
 plot(r)
 
-# lon <- sds[71]  #longitude
-lon <- sds[51]  #longitude
+
+# lon <- sds[71]  #longitude  #10km
+lon <- sds[51]  #longitude  #3km
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[51], dst_dataset = filename)
+# gdal_translate(sds[51], dst_dataset = filename) # 3km
+gdal_translate(sds[71], dst_dataset = filename) # 10km
 # Load the Geotiff created into R
 lon <- raster(filename)
 plot(lon)
 
 
-# lon <- sds[72]  #longitude
-lat <- sds[52] # latitude
+# lat <- sds[72]  #longitude 10km
+lat <- sds[52] # latitude 3km
 filename <- rasterTmpFile()
 extension(filename) <- 'tif'
-gdal_translate(sds[52], dst_dataset = filename)
+gdal_translate(sds[72], dst_dataset = filename) #10km
+# gdal_translate(sds[52], dst_dataset = filename) #3km
 # Load the Geotiff created into R
 lat <- raster(filename)
 plot(lat)
@@ -122,22 +131,24 @@ extract_HDF <- function (file) {      ## this is the filenames
   nome <- str_sub(file, start = 1, end = -9)
   sds <- get_subdatasets(file)
   
-  # AOD <- sds[64]  ## field value AOD
-  AOD <- sds[12]  ## # AOT Image_Optical_Depth_Land_And_Ocean
+  AOD <- sds[64]  ## field value AOD AOD_550_Dark_Target_Deep_Blue_Combined # 10km
+#  AOD <- sds[12]  ## # AOT Image_Optical_Depth_Land_And_Ocean #3km
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
   # get raster data
-  gdal_translate(sds[12], dst_dataset = filename)
+#  gdal_translate(sds[12], dst_dataset = filename) #3km
+  gdal_translate(sds[64], dst_dataset = filename) #10km
   r <- raster(filename)
   values <- rasterToPoints(r)  
   colnames(values) <- c("x", "y", "values")
   values <- as.data.frame (values)
   
-  # lon <- sds[71]  #longitude
-  lon <- sds[51]  #longitude
+  lon <- sds[71]  #longitude # 10km
+#  lon <- sds[51]  #longitude #3km
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
-  gdal_translate(sds[51], dst_dataset = filename)
+#  gdal_translate(sds[51], dst_dataset = filename) #3km
+  gdal_translate(sds[71], dst_dataset = filename) #10km
   lon <- raster(filename)
   # data values for longitude
   longitude <- rasterToPoints(lon)  
@@ -145,11 +156,12 @@ extract_HDF <- function (file) {      ## this is the filenames
   longitude <- as.data.frame (longitude)
   
   
-  # lat <- sds[72] # latitude
-  lat <- sds[52] # latitude
+  lat <- sds[72] # latitude  #10km
+#  lat <- sds[52] # latitude  #3km
   filename <- rasterTmpFile()
   extension(filename) <- 'tif'
-  gdal_translate(sds[52], dst_dataset = filename)
+ # gdal_translate(sds[52], dst_dataset = filename) #3km
+  gdal_translate(sds[72], dst_dataset = filename) #10km
   # Load the Geotiff created into R
   lat <- raster(filename)
   # data values for longitude
@@ -174,9 +186,18 @@ extract_HDF <- function (file) {      ## this is the filenames
 }  
 
 
+# total <- length(filenames)
+# pb <- txtProgressBar(min = 0, max = total, style = 3)
+# for(i in 1:total){
+  
 # BBB <- lapply(filenames[1:5], extract_HDF)
 BBB <- lapply(filenames, extract_HDF)
 
+# Sys.sleep(0.1)
+# # update progress bar
+# setTxtProgressBar(pb, i)
+# }
+# close(pb)
 
 ######################################################################################
 ######################################################################################
@@ -202,28 +223,47 @@ for (i in 1:length(filenames_tiles)) {
 MODIS04_data <- cbind(LON, LAT, aod)
 MODIS04_data <- subset(MODIS04_data, !is.na(values) & !lat == -999 & !lon == -999)
 
-# write.csv(MODIS04_data, "AOD_MOD04_10km_WW.csv")
-write.csv(MODIS04_data, "AOD_MOD04_3K_3km_WW.csv")
+write.csv(MODIS04_data, "AOD_MOD04_10km_WW_03Oct2016.csv")
+# write.csv(MODIS04_data, "AOD_MOD04_3K_3km_WW.csv")
 
 head(MODIS04_data)
 
 
 ################################################################################
-# subset data fro a selected region
-# Saudi Arabia
+# subset data for a selected region
+# Saudi Arabia & EU
 
 # MODIS04_data <- read.csv("C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/AOD_MOD04_10km_WW.csv")
 # MODIS04_data <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/AOD_MOD04_10km_WW.csv")
 
-MODIS04_data <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_WW.csv")[2:4]
-DATA_EMIRATES <- subset(MODIS04_data, lon <= 80 & lon >= 10 & lat >= 10 & lat <= 55)
+# MODIS04_data <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_WW.csv")[2:4]
+MODIS04_data <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_10K_2016_277_3Oct2016/AOD_MOD04_10km_WW_03Oct2016.csv")[2:4]
+DATA_EU_UAE <- subset(MODIS04_data, lon <= 75 & lon >= -22 & lat >= -1.7 & lat <= 66.5)
+# DATA_EMIRATES <- subset(MODIS04_data, lon <= 80 & lon >= 10 & lat >= 10 & lat <= 55)
+
+head(DATA_EU_UAE)
 
 # write.csv(DATA_EMIRATES, "AOD_MOD04_10km_EMIRATES.csv")
-write.csv(DATA_EMIRATES, "AOD_MOD04_3K_3km_EMIRATES.csv")
-DATA_EMIRATES <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_EMIRATES.csv")
+# write.csv(DATA_EMIRATES, "AOD_MOD04_3K_3km_EMIRATES.csv")
+# write.csv(DATA_EU_UAE, "AOD_MOD04_3K_3km_EMIRATES.csv")
+write.csv(DATA_EU_UAE, "AOD_MOD04_10km_03Oct2016_EMIRATES.csv")
+# DATA_EMIRATES <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/AOD_MOD04_3K_3km_EMIRATES.csv")
+DATA_EMIRATES <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_10K_2016_277_3Oct2016/AOD_MOD04_10km_03Oct2016_EMIRATES.csv")[-1]
 head(DATA_EMIRATES)
 
 
+#############################################
+
+# crs <- projection(shp) ### get projections from shp file
+# 
+# DATA_EMIRATES <- SpatialPointsDataFrame(DATA_EMIRATES[,1:2], DATA_EMIRATES, proj4string=CRS(crs)) 
+# pixels <- SpatialPixelsDataFrame(DATA_EMIRATES, tolerance = 0.916421, DATA_EMIRATES@data)
+# raster_DATA_EMIRATES <- raster(pixels[,'values'])
+# plot(raster_DATA_EMIRATES)
+# plot(shp, add=TRUE, lwd=1)
+
+
+#########################################################
 ##################################################################################
 ##################################################################################
 
@@ -259,6 +299,10 @@ data_frame_to_points <- function (df, latitude = "lat",
 
 ############  Make a data interpolation on a regular grid ########################
 
+min(DATA_EMIRATES$lat)
+max(DATA_EMIRATES$lat)
+min(DATA_EMIRATES$lon)
+max(DATA_EMIRATES$lon)
 
 DATA_EMIRATES$x <- DATA_EMIRATES$lon
 DATA_EMIRATES$y <- DATA_EMIRATES$lat
@@ -266,8 +310,8 @@ DATA_EMIRATES$y <- DATA_EMIRATES$lat
 coordinates(DATA_EMIRATES) = ~x + y  ## Set spatial coordinates to create a Spatial object:
 plot(DATA_EMIRATES)
 
-x.range <- as.numeric(c(10, 80))  # min/max longitude of the interpolation area
-y.range <- as.numeric(c(10, 55))  # min/max latitude of the interpolation area
+x.range <- as.numeric(c(-23, 75))  # min/max longitude of the interpolation area
+y.range <- as.numeric(c(-1.7, 67))  # min/max latitude of the interpolation area
 
 grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = 0.1),
                    y = seq(from = y.range[1], to = y.range[2], by = 0.1))  # expand points to grid
@@ -283,7 +327,7 @@ idw <- idw(formula = values ~ 1, locations = DATA_EMIRATES,
 idw.output = as.data.frame(idw)  # output is defined as a data table
 names(idw.output)[1:3] <- c("Lon", "Lat", "values")  # give names to the modelled variables
 
-write.csv(idw.output, file = "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv", row.names=FALSE)
+write.csv(idw.output, file = "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/AOD_MOD04_10km_03Oct2016_EMIRATES_Interp.csv", row.names=FALSE)
 
 
 ############################################################################################
@@ -297,7 +341,8 @@ write.csv(idw.output, file = "C:/RICARDO-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD
 # DATA_EMIRATES_interp <- read.csv("C:/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_2016_103/DATA_EMIRATES_Interp.csv")
 
 # Load interpolated data at resolution of 3km 
-DATA_EMIRATES_interp <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/DATA_EMIRATES_Interp_3K.csv")
+# DATA_EMIRATES_interp <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_3K_2016_124/DATA_EMIRATES_Interp_3K.csv")
+DATA_EMIRATES_interp <- read.csv("E:/Ricardo-AEA/SATELLITE_STUFF/AOD_MOD04_L2_3K/MOD04_AOD_10K_2016_277_3Oct2016/AOD_MOD04_10km_03Oct2016_EMIRATES.csv_Interp.csv")
 
 
 # make raster with interpolated data
